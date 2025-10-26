@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Logs</h2>
+{% if user.role == "patient" %}
+    <ul>
+    {% for log in logs %}
+        <li>{{ log }}</li>
+    {% endfor %}
+    </ul>
+{% elif user.role == "doctor" %}
+    {% for patient in patients %}
+        <h3>{{ patient }}</h3>
+        <ul>
+        {% for log in logs.get(patient, []) %}
+            <li>{{ log }}</li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Apply for In-home Medical Care</h2>
+
+{% if request_info %}
+    <div class="card">
+        <h3>Your Current Application</h3>
+        <p>Requested at: {{ request_info.requested_at }}</p>
+        <p>Status: {{ request_info.status }}</p>
+        <p>Reason: {{ request_info.reason }}</p>
+    </div>
+{% endif %}
+
+<form method="post" class="form">
+    <label>Reason for Request:</label>
+    <textarea name="reason" required></textarea>
+    <button type="submit" class="btn">Submit Request</button>
+</form>
+{% endblock %}

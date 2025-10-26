@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Welcome to Medical Web</h1>
+
+{% if user %}
+    <p>Hello, {{ user.name }} ({{ user.role }})</p>
+
+    {% if user.role == "manager" %}
+        <div class="card">
+            <h2>n8n Account Info</h2>
+            <p>Account: forn8nwork@gmail.com</p>
+            <p>Password: jI3&VLQ2@M#u</p>
+        </div>
+    {% elif user.role == "patient" %}
+        <div class="card">
+            <h2>Your Latest Monitoring Data</h2>
+            {% if latest_data.metrics %}
+                <ul>
+                {% for k, v in latest_data.metrics.items() %}
+                    <li>{{ k | capitalize }}: {{ v }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No monitoring data yet.</p>
+            {% endif %}
+            <p>Last Log: {{ latest_data.last_log }}</p>
+        </div>
+
+        {% if homecare_request %}
+            <div class="card">
+                <h2>In-home Care Application Status</h2>
+                <p>Requested at: {{ homecare_request.requested_at }}</p>
+                <p>Status: {{ homecare_request.status }}</p>
+                <p>Reason: {{ homecare_request.reason }}</p>
+            </div>
+        {% endif %}
+
+    {% elif user.role == "doctor" %}
+        <h2>Pending Homecare Requests</h2>
+        {% if pending_homecare %}
+            <ul>
+            {% for req in pending_homecare %}
+                <li>{{ req.name }} - Requested at: {{ req.requested_at }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No pending requests.</p>
+        {% endif %}
+
+        <h2>Latest Monitoring Data of Patients</h2>
+        <div class="cards">
+            {% for patient, data in latest_data.items() %}
+                <div class="card">
+                    <h3>{{ patient }}</h3>
+                    {% if data.metrics %}
+                        <ul>
+                        {% for k, v in data.metrics.items() %}
+                            <li>{{ k | capitalize }}: {{ v }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No data.</p>
+                    {% endif %}
+                    <p>Last Log: {{ data.last_log }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h2>Emergency Mode</h2>
+            <a href="/emergency"><button class="btn">Go to Emergency Mode</button></a>
+        </div>
+    {% endif %}
+
+{% else %}
+    <p>Please login to access features.</p>
+{% endif %}
+{% endblock %}

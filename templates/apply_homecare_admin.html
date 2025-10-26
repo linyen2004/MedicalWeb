@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>All In-home Care Requests</h2>
+
+{% if requests %}
+    <ul>
+    {% for pname, req in requests.items() %}
+        <li>
+            {{ pname }} - Requested at: {{ req.requested_at }}, Status: {{ req.status }}, Reason: {{ req.reason }}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No requests yet.</p>
+{% endif %}
+{% endblock %}

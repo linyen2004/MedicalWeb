@@ -1,0 +1,160 @@
+/* ----- Global Style ----- */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f4faff;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* ----- Navigation Bar ----- */
+nav {
+    background-color: #0077cc;
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+nav a:hover {
+    background-color: #005fa3;
+}
+
+/* ----- Container Layout ----- */
+.container {
+    padding: 30px 50px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ----- Headings ----- */
+h1, h2, h3, h4 {
+    color: #004b8d;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* ----- Card Component ----- */
+.card {
+    background-color: #ffffff;
+    padding: 25px;
+    margin: 25px 0;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+}
+
+/* ----- Form Style ----- */
+.form label {
+    display: block;
+    margin-top: 12px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form input,
+.form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form input:focus,
+.form textarea:focus {
+    border-color: #0077cc;
+    box-shadow: 0 0 4px rgba(0, 119, 204, 0.3);
+}
+
+/* ----- Buttons ----- */
+.btn {
+    margin-top: 15px;
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #005fa3;
+    transform: translateY(-1px);
+}
+
+.btn.small {
+    padding: 6px 12px;
+    font-size: 0.9em;
+}
+
+/* ----- Table ----- */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #0077cc;
+    color: white;
+    font-weight: 500;
+}
+
+.table tr:hover {
+    background-color: #f1f8ff;
+}
+
+/* ----- Error Message ----- */
+.error {
+    color: #cc0000;
+    margin-top: 10px;
+}
+
+/* ----- Section spacing for home page ----- */
+section {
+    margin-bottom: 40px;
+}
+
+/* ----- Patient report & latest data layout ----- */
+.patient-report, .history-report {
+    background-color: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}

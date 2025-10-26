@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Add History Report for {{ patient_name }}</h2>
+    <form method="post" class="form">
+        <label>Report Details</label>
+        <textarea name="report" rows="5" required></textarea>
+        <button type="submit" class="btn">Submit Report</button>
+    </form>
+    <a href="/history" class="btn small">Back to History</a>
+</div>
+{% endblock %}

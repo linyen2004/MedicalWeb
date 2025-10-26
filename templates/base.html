@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Web</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        {% if user %}
+            {% if user.role == "manager" %}
+                <!-- Manager: 只保留 Model Editor 與 Logout -->
+                <a href="/model_editor">Model Editor</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <!-- 非 Manager -->
+                <a href="/">Home</a>
+                <a href="/history">History</a>
+                <a href="/reports">Reports</a>
+
+                {% if user.role == "patient" %}
+                    <a href="/apply_homecare">申請在宅醫療</a>
+                {% endif %}
+
+                <a href="/logout">Logout</a>
+            {% endif %}
+        {% else %}
+            <!-- 未登入 -->
+            <a href="/">Home</a>
+            <a href="/login">Login</a>
+        {% endif %}
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

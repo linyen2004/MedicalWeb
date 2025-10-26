@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Emergency Event & Progress Tracking</h2>
+
+{% if events %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Time</th>
+            <th>Event</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in events %}
+        <tr>
+            <td>{{ e.patient }}</td>
+            <td>{{ e.time }}</td>
+            <td>{{ e.event }}</td>
+            <td>{{ e.status }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No emergency events reported yet.</p>
+{% endif %}
+{% endblock %}

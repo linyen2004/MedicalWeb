@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+{% if user.role == "patient" %}
+    <h2>Your History</h2>
+    <ul>
+    {% for item in history %}
+        <li>{{ item }}</li>
+    {% endfor %}
+    </ul>
+{% elif user.role == "doctor" %}
+    <h2>Patients</h2>
+    <ul>
+    {% for patient in patients %}
+        <li>
+            <strong>{{ patient }}</strong>
+            <ul>
+                {% for report in history.get(patient, []) %}
+                    <li>{{ report }}</li>
+                {% endfor %}
+            </ul>
+            <p>Modules: {{ modules.get(patient)|join(", ") }}</p>
+            <a href="/add_history/{{ patient }}"><button>Add Report</button></a>
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
