@@ -1,20 +1,55 @@
+
+
+
 {% extends "base.html" %}
 {% block content %}
 <h2>Logs</h2>
+
 {% if user.role == "patient" %}
+    <h3>Your Logs</h3>
     <ul>
     {% for log in logs %}
         <li>{{ log }}</li>
     {% endfor %}
     </ul>
+
 {% elif user.role == "doctor" %}
+    <h3>Patient Logs</h3>
+
     {% for patient in patients %}
-        <h3>{{ patient }}</h3>
-        <ul>
-        {% for log in logs.get(patient, []) %}
-            <li>{{ log }}</li>
-        {% endfor %}
-        </ul>
+        <div class="card">
+            <h4>{{ patient }}</h4>
+            <ul>
+                {% for log in logs.get(patient, []) %}
+                    <li>
+                        {{ log }}
+                        <!-- inline edit using details -->
+                        <details style="display:inline-block; margin-left:10px;">
+                            <summary class="btn small">Edit</summary>
+                            <form action="/edit_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:8px;">
+                                <input type="text" name="new_text" value="{{ log }}" required>
+                                <button type="submit" class="btn small">Save</button>
+                            </form>
+                        </details>
+
+                        <form action="/delete_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:6px;">
+                            <button type="submit" class="btn small" onclick="return confirm('Delete this log?')">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <!-- add new log -->
+            <details>
+                <summary class="btn">➕ Add Log</summary>
+                <form action="/add_log/{{ patient }}" method="post" class="form">
+                    <label>Log text</label>
+                    <input type="text" name="log_text" required>
+                    <button type="submit" class="btn">Submit</button>
+                </form>
+            </details>
+        </div>
     {% endfor %}
+
 {% endif %}
 {% endblock %}
