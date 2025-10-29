@@ -1,6 +1,3 @@
-
-
-
 {% extends "base.html" %}
 {% block content %}
 <h2>Logs</h2>
@@ -19,11 +16,12 @@
     {% for patient in patients %}
         <div class="card">
             <h4>{{ patient }}</h4>
+            {% set patient_logs = logs.get(patient, []) %}
+            {% if patient_logs %}
             <ul>
-                {% for log in logs.get(patient, []) %}
+                {% for log in patient_logs %}
                     <li>
                         {{ log }}
-                        <!-- inline edit using details -->
                         <details style="display:inline-block; margin-left:10px;">
                             <summary class="btn small">Edit</summary>
                             <form action="/edit_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:8px;">
@@ -38,6 +36,9 @@
                     </li>
                 {% endfor %}
             </ul>
+            {% else %}
+            <p>No logs for {{ patient }}</p>
+            {% endif %}
 
             <!-- add new log -->
             <details>

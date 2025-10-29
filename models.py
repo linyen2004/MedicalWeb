@@ -57,4 +57,3 @@ class EmergencyEvent(Base):
     patient_id = Column(Integer, ForeignKey("patients.id"))
     patient = relationship("Patient", back_populates="emergencies")
 
-

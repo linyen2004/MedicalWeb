@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 <h2>Emergency Event & Progress Tracking</h2>
 
@@ -14,17 +13,63 @@
         </tr>
     </thead>
     <tbody>
+        {# 真實事件來自後端 events #}
         {% for e in events %}
         <tr>
             <td>{{ e.patient }}</td>
             <td>{{ e.time }}</td>
             <td>{{ e.event }}</td>
-            <td>{{ e.status }}</td>
+            {# 根據 status 判斷顏色 #}
+            <td style="color: {% if e.status == '處理中' %}red{% elif e.status == '已解決' %}orange{% else %}black{% endif %};">
+                {{ e.status }}
+            </td>
         </tr>
         {% endfor %}
+
+        {# 以下是假資料硬編入前端 #}
+        <tr>
+            <td>Liao</td>
+            <td>2025-10-28 15:00</td>
+            <td>Simulated heart rate spike</td>
+            <td style="color:red">處理中</td>
+        </tr>
+        <tr>
+            <td>Liao</td>
+            <td>2025-10-28 13:00</td>
+            <td>Simulated arrhythmia resolved</td>
+            <td style="color:orange">已解決</td>
+        </tr>
+
     </tbody>
 </table>
 {% else %}
 <p>No emergency events reported yet.</p>
+
+{# 可以單獨加入假資料顯示 #}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Time</th>
+            <th>Event</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Liao</td>
+            <td>2025-10-28 15:00</td>
+            <td>Simulated heart rate spike</td>
+            <td style="color:red">處理中</td>
+        </tr>
+        <tr>
+            <td>Liao</td>
+            <td>2025-10-28 13:00</td>
+            <td>Simulated arrhythmia resolved</td>
+            <td style="color:orange">已解決</td>
+        </tr>
+    </tbody>
+</table>
+
 {% endif %}
 {% endblock %}

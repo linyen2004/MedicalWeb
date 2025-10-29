@@ -1,1 +1,123 @@
-{% extends "base.html" %} {% block content %} <h2 style="text-align:center; margin-bottom: 20px;">報告中心</h2> {% if is_doctor %} <p style="text-align:center; color: #555;">目前為醫師模式，顯示所有病患的監測資料與歷史報告。</p> {% else %} <p style="text-align:center; color: #555;">目前為病患模式，僅顯示個人監測報告。</p> {% endif %} <!-- 最新監測資料 --> <div class="section"> <h3>最新監測資料</h3> {% if latest_data %} {% if is_doctor %} {% for patient, data in latest_data.items() %} <div class="card doctor-card"> <h4>{{ patient }}</h4> <p><strong>心跳:</strong> {{ data.metrics.heart_rate or 'N/A' }}</p> <p><strong>血壓:</strong> {{ data.metrics.bp or 'N/A' }}</p> <p><strong>體溫:</strong> {{ data.metrics.temp or 'N/A' }}</p> <p><strong>最後紀錄:</strong> {{ data.last_log or 'N/A' }}</p> </div> {% endfor %} {% else %} <div class="card patient-card"> <p><strong>心跳:</strong> {{ latest_data.metrics.heart_rate or 'N/A' }}</p> <p><strong>血壓:</strong> {{ latest_data.metrics.bp or 'N/A' }}</p> <p><strong>體溫:</strong> {{ latest_data.metrics.temp or 'N/A' }}</p> <p><strong>最後紀錄:</strong> {{ latest_data.last_log or 'N/A' }}</p> </div> {% endif %} {% else %} <p>尚無最新監測資料</p> {% endif %} </div> <!-- 歷史報告 --> <div class="section"> <h3>歷史報告</h3> {% if reports %} {% for patient, report_list in reports.items() %} <div class="card history-card"> <h4>{{ patient }}</h4> {% for r in report_list %} <p><strong>{{ r.timestamp }}:</strong> {{ r.summary }}</p> {% endfor %} </div> {% endfor %} {% else %} <p>尚無歷史報告</p> {% endif %} </div> {% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Reports Center</h2>
+
+{% if is_doctor %}
+    <p style="color:#555;">目前為醫師模式，顯示所有病患的監測資料與歷史報告。</p>
+
+    <div class="cards">
+        {% for patient, data in latest_data.items() %}
+        <div class="card">
+            <h3>{{ patient }}</h3>
+
+            {% set patient_metrics = data.get('metrics', {}) %}
+            {% if patient_metrics %}
+            <ul>
+                {% for k, v in patient_metrics.items() %}
+                <li>{{ k | capitalize }}: {{ v }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No monitoring data yet.</p>
+            {% endif %}
+
+            <p>Last Log: {{ data.get('last_log', 'No logs') }}</p>
+
+            <!-- 新增 Liao 詳細報告 -->
+            {% if patient == "Liao" %}
+            <details class="card detailed-report">
+                <summary class="btn">📋 查看詳細監測報告</summary>
+                <pre style="white-space: pre-wrap; background-color:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ccc; margin-top:10px;">
+健康評估報告
+
+病患姓名: Liao
+身分證號: A123456789
+評估日期: 2025-10-29
+
+一、基本資料
+年齡：32歲
+性別：男
+身高：175 cm
+體重：68 kg
+BMI：22.2（正常）
+
+二、生理監測摘要
+血壓：118 / 76 mmHg（正常）
+心率：76 bpm（正常）
+血氧（SpO2）：97%（正常）
+體溫：36.6°C（正常）
+
+三、問診摘要
+患者表示近期偶有輕微頭暈，無胸悶或呼吸困難。
+日常飲食正常，運動頻率每週約三次。
+睡眠品質良好。
+
+四、AI 初步建議
+1. 維持現有運動頻率與均衡飲食。
+2. 若頭暈持續，建議於一週內前往醫院進行血壓與血糖追蹤。
+3. 定期使用 MIoT 系統進行生理監測。
+                </pre>
+            </details>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <!-- 患者模式 -->
+    <div class="card">
+        <h3>{{ username }}</h3>
+
+        {% set user_metrics = latest_data.get('metrics', {}) %}
+        {% if user_metrics %}
+        <ul>
+            {% for k, v in user_metrics.items() %}
+            <li>{{ k | capitalize }}: {{ v }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No monitoring data yet.</p>
+        {% endif %}
+
+        <p>Last Log: {{ latest_data.get('last_log', 'No logs') }}</p>
+
+        {% if username == "Liao" %}
+        <details class="card detailed-report">
+            <summary class="btn">📋 查看詳細監測報告</summary>
+            <pre style="white-space: pre-wrap; background-color:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ccc; margin-top:10px;">
+健康評估報告
+
+病患姓名: Liao
+身分證號: A123456789
+評估日期: 2025-10-29
+
+一、基本資料
+年齡：32歲
+性別：男
+身高：175 cm
+體重：68 kg
+BMI：22.2（正常）
+
+二、生理監測摘要
+血壓：118 / 76 mmHg（正常）
+心率：76 bpm（正常）
+血氧（SpO2）：97%（正常）
+體溫：36.6°C（正常）
+
+三、問診摘要
+患者表示近期偶有輕微頭暈，無胸悶或呼吸困難。
+日常飲食正常，運動頻率每週約三次。
+睡眠品質良好。
+
+四、AI 初步建議
+1. 維持現有運動頻率與均衡飲食。
+2. 若頭暈持續，建議於一週內前往醫院進行血壓與血糖追蹤。
+3. 定期使用 MIoT 系統進行生理監測。
+            </pre>
+        </details>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

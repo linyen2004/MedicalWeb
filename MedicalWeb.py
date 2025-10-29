@@ -28,9 +28,7 @@ users = {
 
 # keep patient_modules in-memory for display (preserve existing content)
 patient_modules = {
-    "Liao": ["Heart Monitoring Model"],
-    "Patient B": ["Blood Pressure Model"],
-    "Patient C": ["Basic Health Model"]
+    "Liao": ["Heart Monitoring Model"]
 }
 
 # Helper: DB dependency
@@ -77,7 +75,7 @@ def init_db_and_seed():
         # If patients empty, seed sample patients and data
         if db.query(Patient).count() == 0:
             # Seed patients matching your original names
-            names = ["Liao", "Patient B", "Patient C"]
+            names = ["Liao"]
             for n in names:
                 p = Patient(name=n)
                 db.add(p)
@@ -85,32 +83,17 @@ def init_db_and_seed():
 
             # Add histories
             p_liao = db.query(Patient).filter_by(name="Liao").first()
-            p_b = db.query(Patient).filter_by(name="Patient B").first()
-            p_c = db.query(Patient).filter_by(name="Patient C").first()
 
             if p_liao:
                 db.add_all([
-                    History(content="2024-08-01: Diagnosis - Heart check normal", patient=p_liao),
-                    History(content="2024-08-15: ECG - Minor arrhythmia", patient=p_liao)
+                    History(content="2025-08-01: Diagnosis - Heart check normal", patient=p_liao),
+                    History(content="2025-08-15: ECG - Minor arrhythmia", patient=p_liao)
                 ])
                 db.add_all([
-                    Log(content="2024-09-01: Heart rate 72", patient=p_liao),
-                    Log(content="2024-09-02: Heart rate 75", patient=p_liao),
-                    Log(content="2024-09-03: Heart rate 80", patient=p_liao)
-                ])
-
-            if p_b:
-                db.add(History(content="2024-08-05: Diagnosis - Blood pressure high", patient=p_b))
-                db.add_all([
-                    Log(content="2024-09-01: BP 140/90", patient=p_b),
-                    Log(content="2024-09-02: BP 138/88", patient=p_b)
-                ])
-
-            if p_c:
-                db.add(History(content="2024-08-10: Diagnosis - Normal", patient=p_c))
-                db.add_all([
-                    Log(content="2024-09-01: Heart rate 70", patient=p_c),
-                    Log(content="2024-09-02: Heart rate 68", patient=p_c)
+                    Log(content="2025-09-01: Heart rate 72", patient=p_liao),
+                    Log(content="2025-09-02: Heart rate 75", patient=p_liao),
+                    Log(content="2025-09-03: Heart rate 80", patient=p_liao),
+                    Log(content="2025-10-29: Heart rate 76", patient=p_liao)
                 ])
 
             # seed doctor

@@ -10,11 +10,16 @@
 {% elif user.role == "doctor" %}
     {% for patient in patients %}
         <h3>{{ patient }}</h3>
+        {% set patient_modules = modules.get(patient, []) %}
+        {% if patient_modules %}
         <ul>
-        {% for module in modules.get(patient, []) %}
+        {% for module in patient_modules %}
             <li>{{ module }}</li>
         {% endfor %}
         </ul>
+        {% else %}
+        <p>No modules for {{ patient }}</p>
+        {% endif %}
     {% endfor %}
 {% endif %}
 {% endblock %}
