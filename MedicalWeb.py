@@ -373,32 +373,68 @@ async def apply_homecare_submit(request: Request, reason: str = Form(...), db: S
     db.commit()
     return RedirectResponse("/", status_code=302)
 
-# Emergency mode (doctor) and add
+# Emergency mode (doctor) - 顯示急救事件頁面
 @app.get("/emergency", response_class=HTMLResponse)
 async def emergency(request: Request, db: Session = Depends(get_db)):
+    # 取得 session 中的使用者資訊
     user = request.session.get("user")
+    
+    # 權限檢查：只有 doctor 才能進入此頁面
     if not user or user["role"] != "doctor":
+        # 非醫生或未登入使用者會看到限制頁面
         return templates.TemplateResponse("restricted.html", {"request": request, "user": user})
+
+    # 初始化事件列表
     events = []
+
+    # 從資料庫讀取所有急救事件，依時間排序 (最新在前)
     rows = db.query(EmergencyEvent).order_by(EmergencyEvent.time.desc()).all()
+
+    # 將每個事件轉成前端可用的字典格式
     for e in rows:
-        events.append({"patient": e.patient.name if e.patient else None, "time": e.time.strftime("%Y-%m-%d %H:%M:%S"), "event": e.event, "status": e.status})
+        events.append({
+            "patient": e.patient.name if e.patient else None,  # 病患名稱
+            "time": e.time.strftime("%Y-%m-%d %H:%M:%S"),      # 事件時間
+            "event": e.event,                                   # 事件描述
+            "status": e.status                                  # 事件狀態
+        })
+
+    # 將事件列表傳給前端模板呈現
     return templates.TemplateResponse("emergency.html", {"request": request, "user": user, "events": events})
 
+
+# Emergency mode (doctor) - 新增急救事件
 @app.post("/emergency/add", response_class=HTMLResponse)
-async def emergency_add(request: Request, patient: str = Form(...), event: str = Form(...), db: Session = Depends(get_db)):
+async def emergency_add(
+    request: Request, 
+    patient: str = Form(...),   # 從表單取得病患名稱
+    event: str = Form(...),     # 從表單取得事件描述
+    db: Session = Depends(get_db)
+):
+    # 取得 session 中的使用者資訊
     user = request.session.get("user")
+
+    # 權限檢查：只有 doctor 才能新增事件
     if not user or user["role"] != "doctor":
         return templates.TemplateResponse("restricted.html", {"request": request, "user": user})
+
+    # 查詢資料庫中是否已有這位病患
     patient_obj = db.query(Patient).filter_by(name=patient).first()
+
+    # 若病患不存在，新增病患
     if not patient_obj:
         patient_obj = Patient(name=patient)
         db.add(patient_obj)
-        db.commit()
+        db.commit()  # 提交新增病患
+
+    # 建立新的急救事件 (預設狀態為 "處理中")
     ev = EmergencyEvent(event=event, status="處理中", patient_id=patient_obj.id)
     db.add(ev)
-    db.commit()
+    db.commit()  # 提交新增事件
+
+    # 新增完成後重新導向回 /emergency 頁面
     return RedirectResponse("/emergency", status_code=302)
+
 
 # Reports page
 @app.get("/reports", response_class=HTMLResponse)
@@ -451,12 +487,13 @@ async def reports_page(request: Request, db: Session = Depends(get_db)):
         history = db.query(History).filter(History.patient_id == patient.id).order_by(History.created_at).all()
 
         reports[username] = {
-            "metrics": parse_latest_metrics_from_logs(logs),
-            "last_log": logs[-1].content if logs else None,
-            "modules": patient_modules.get(username, []),
-            "logs": [l.content for l in logs],
-            "history": [{"timestamp": h.created_at.strftime("%Y-%m-%d %H:%M:%S"), "summary": h.content} for h in history]
-        }
+    "metrics": parse_latest_metrics_from_logs(logs),
+    "last_log": logs[-1].content if logs else None,
+    "modules": patient_modules.get(username, []),
+    "logs": [l.content for l in logs],
+    "history": [{"timestamp": h.created_at.strftime("%Y-%m-%d %H:%M:%S"), "summary": h.content} for h in history]
+}
+
 
         return templates.TemplateResponse("reports.html", {
             "request": request,
@@ -466,8 +503,6 @@ async def reports_page(request: Request, db: Session = Depends(get_db)):
             "user": user
         })
 
-
-# ---- Run ----
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

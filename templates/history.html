@@ -1,1 +1,177 @@
-{% extends "base.html" %} {% block content %} <h2>History</h2> {% if user.role == "patient" %} <h3>Your History</h3> <ul> {% for item in history %} <li>{{ item }}</li> {% endfor %} </ul> {% elif user.role == "doctor" %} <h3>Patients</h3> <ul> {% for patient in patients %} {% set patient_history = history.get(patient, []) %} <li> <strong>{{ patient }}</strong> {% if patient_history %} <ul> {% for report in patient_history %} <li> {{ report }} <details style="display:inline-block; margin-left:10px;"> <summary class="btn small">Edit</summary> <form action="/edit_history/{{ patient }}/{{ loop.index0 }}" method="post" class="form" style="display:inline-block; margin-left:8px;"> <input type="text" name="new_text" value="{{ report }}" required> <button type="submit" class="btn small">Save</button> </form> </details> <form action="/delete_history/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:6px;"> <button type="submit" class="btn small" onclick="return confirm('Delete this report?')">Delete</button> </form> </li> {% endfor %} </ul> {% else %} <p>No history for {{ patient }}</p> {% endif %} <p>Modules: {{ modules.get(patient, [])|join(", ") }}</p> <!-- Inline add new report --> <details> <summary class="btn">➕ Add Report</summary> <form action="/add_history/{{ patient }}" method="post" class="form"> <label>Report content</label> <textarea name="report" rows="3" required></textarea> <button type="submit" class="btn">Submit</button> </form> </details> </li> {% endfor %} </ul> {% endif %} {% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<h2 style="text-align:center; margin-bottom:20px;">患者病歷紀錄</h2>
+
+<div id="patient-history" style="max-width:800px; margin:0 auto;">
+    <!-- 患者卡片 -->
+    <div class="patient-card">
+        <div class="patient-header" onclick="togglePatient('patient1')">
+            Liao
+        </div>
+        <div id="patient1" class="patient-details">
+            <h4>一、基本資訊</h4>
+            年齡：32歲<br>
+            性別：男<br>
+            血型：O型<br>
+            身高：175 cm<br>
+            體重：68 kg<br>
+            BMI：22.2（正常）<br>
+
+            <h4>二、重大疾病或遺傳病史</h4>
+            無慢性疾病記錄<br>
+            目前罹患心血管疾病，以藥物治療，追蹤中<br>
+
+            <h4>三、監測任務清單</h4>
+            <div class="monitoring-tasks">
+                <div class="task-card">
+                    <strong>血壓監測</strong><br>
+                    標準範圍：收縮壓 90~120 mmHg / 舒張壓 60~80 mmHg<br>
+                    頻率：每日早晚各一次
+                </div>
+                <div class="task-card">
+                    <strong>心率監測</strong><br>
+                    標準範圍：60~100 bpm<br>
+                    頻率：每日早晚各一次
+                </div>
+                <div class="task-card">
+                    <strong>血氧 (SpO2) 監測</strong><br>
+                    標準範圍：95~100%<br>
+                    頻率：每日早晚各一次
+                </div>
+                <div class="task-card">
+                    <strong>體溫監測</strong><br>
+                    標準範圍：36.1~37.2°C<br>
+                    頻率：每日早晚各一次
+                </div>
+            </div>
+
+            <h4>四、診療紀錄</h4>
+            <div class="visit-card">
+                <div class="visit-header" onclick="toggleVisit('visit1')">
+                    2025-10-15 面診紀錄
+                </div>
+                <div id="visit1" class="visit-details">
+                    <strong>症狀:</strong> 偶有頭暈，無胸悶或呼吸困難<br>
+                    <strong>檢查:</strong> 血壓 118/76 mmHg，心率 76 bpm，SpO2 97%<br>
+                    <strong>處置:</strong> 維持現有運動與飲食，建議定期監測
+                </div>
+            </div>
+
+            <div class="visit-card">
+                <div class="visit-header" onclick="toggleVisit('visit2')">
+                    2025-10-22 面診紀錄
+                </div>
+                <div id="visit2" class="visit-details">
+                    <strong>症狀:</strong> 頭暈稍有增加，睡眠良好<br>
+                    <strong>檢查:</strong> 血壓 125/78 mmHg，心率 80 bpm，SpO2 96%<br>
+                    <strong>處置:</strong> 建議增加休息與監測心率，持續使用 MIoT 系統
+                </div>
+            </div>
+
+            <!-- 新增問診紀錄按鈕 -->
+            <button onclick="addVisitRecord()" style="margin-top:15px; padding:8px 12px; background-color:#3498db; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+                新增問診紀錄
+            </button>
+            <div id="new-visit-container" style="margin-top:10px;"></div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+.patient-card {
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.patient-header {
+    padding: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #3498db;
+    color: #fff;
+}
+
+.patient-details {
+    display: none;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+/* 監測任務卡片 */
+.task-card {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background-color: #f1f8ff;
+    border-left: 4px solid #3498db;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* 診療紀錄卡片 */
+.visit-card {
+    border-radius: 6px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.visit-header {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.visit-details {
+    display: none;
+    padding: 10px 12px;
+    background-color: #fdfdfd;
+    border-top: 1px solid #ccc;
+}
+
+/* 新增問診紀錄卡片 */
+.new-visit-card {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background-color: #fff3cd;
+    border-left: 4px solid #f39c12;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.new-visit-card strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #856404;
+}
+</style>
+
+<script>
+function togglePatient(patientId) {
+    var patient = document.getElementById(patientId);
+    patient.style.display = (patient.style.display === "block") ? "none" : "block";
+}
+
+function toggleVisit(visitId) {
+    var visit = document.getElementById(visitId);
+    visit.style.display = (visit.style.display === "block") ? "none" : "block";
+}
+
+function addVisitRecord() {
+    var container = document.getElementById("new-visit-container");
+    var visitCount = container.children.length + 1;
+    var newCard = document.createElement("div");
+    newCard.className = "new-visit-card";
+    newCard.innerHTML = `
+        <strong>新增問診紀錄 ${visitCount}</strong>
+        <textarea placeholder="請輸入內容..." style="width:100%; margin-top:6px; height:60px; padding:6px; border-radius:4px; border:1px solid #ccc;"></textarea>
+    `;
+    container.appendChild(newCard);
+}
+</script>
+
+{% endblock %}

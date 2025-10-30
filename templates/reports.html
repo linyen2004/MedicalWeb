@@ -1,145 +1,149 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Reports</h2>
+<h2 style="text-align:center; margin-bottom:20px;">Reports 頁面</h2>
 
-{% if is_doctor %}
-    <h3>All Patients</h3>
-    {% for patient, data in reports.items() %}
-        <div class="card">
-            <h4>{{ patient }}</h4>
+<div id="reports-container" style="max-width:900px; margin:0 auto;">
 
-            <!-- Modules -->
-            <p><strong>Modules:</strong></p>
-            {% if data.modules %}
-                <ul>
-                {% for m in data.modules %}
-                    <li>{{ m }}</li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No modules assigned</p>
-            {% endif %}
+    <!-- 監測模型資訊 -->
+    <div id="model-info" style="margin-bottom:15px; padding:12px; background-color:#dceefc; border-left:5px solid #3498db; border-radius:4px;">
+        <strong>使用模型：</strong>血壓與生理監測模型 v1.2
+    </div>
 
-            <!-- Latest Metrics -->
-            <p><strong>Latest Metrics:</strong> {{ data.metrics }}</p>
-            <p><strong>Last Log:</strong> {{ data.last_log }}</p>
+    <!-- Logs -->
+    <div id="logs">
+        <h3>監測數據紀錄</h3>
 
-            <!-- Logs (可編輯) -->
-            <p><strong>Logs:</strong></p>
-            {% if data.logs %}
-                <ul>
-                {% for log in data.logs %}
-                    <li>
-                        {{ log }}
-                        <details style="display:inline-block; margin-left:10px;">
-                            <summary class="btn small">Edit</summary>
-                            <form action="/edit_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:8px;">
-                                <input type="text" name="new_text" value="{{ log }}" required>
-                                <button type="submit" class="btn small">Save</button>
-                            </form>
-                        </details>
-                        <form action="/delete_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:6px;">
-                            <button type="submit" class="btn small" onclick="return confirm('Delete this log?')">Delete</button>
-                        </form>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No logs recorded</p>
-            {% endif %}
+        <!-- 單筆監測數據卡片 -->
+        <div class="log-card">
+            <div class="log-header" onclick="toggleLog('log1')">
+                2025-10-29 08:00 - Liao
+            </div>
+            <div id="log1" class="log-details">
+                <pre>
+健康評估報告
 
-            <!-- Add Log -->
-            <details>
-                <summary class="btn">➕ Add Log</summary>
-                <form action="/add_log/{{ patient }}" method="post" class="form">
-                    <label>Log text</label>
-                    <input type="text" name="log_text" required>
-                    <button type="submit" class="btn">Submit</button>
-                </form>
-            </details>
+病患姓名: Liao
+身分證號: A123456789
+評估日期: 2025-10-29
 
-            <!-- History -->
-            <p><strong>History:</strong></p>
-            {% if data.history %}
-                <ul>
-                {% for h in data.history %}
-                    <li>{{ h.timestamp }} - {{ h.summary }}</li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No history</p>
-            {% endif %}
+一、基本資料
+年齡：32歲
+性別：男
+身高：175 cm
+體重：68 kg
+BMI：22.2（正常）
+
+二、生理監測摘要
+血壓：118 / 76 mmHg（正常）
+心率：76 bpm（正常）
+血氧（SpO2）：97%（正常）
+體溫：36.6°C（正常）
+
+三、問診摘要
+患者表示近期偶有輕微頭暈，無胸悶或呼吸困難。
+日常飲食正常，運動頻率每週約三次。
+睡眠品質良好。
+
+四、AI 初步建議
+1. 維持現有運動頻率與均衡飲食。
+2. 若頭暈持續，建議於一週內前往醫院進行血壓與血糖追蹤。
+3. 定期使用 MIoT 系統進行生理監測。
+
+五、下階段任務清單調整
+                </pre>
+                <label for="doctor-note1"><strong>醫生評語：</strong></label>
+                <textarea id="doctor-note1" rows="3" style="width:100%; margin-top:5px;"></textarea>
+                <button onclick="saveNote('doctor-note1')" style="margin-top:5px; padding:6px 10px; background-color:#3498db; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+                    儲存評語
+                </button>
+            </div>
         </div>
-    {% endfor %}
 
-{% else %}
-    <h3>Your Report</h3>
-    {% for patient, data in reports.items() %}
-        <div class="card">
-            <h4>{{ patient }}</h4>
+        <div class="log-card">
+            <div class="log-header" onclick="toggleLog('log2')">
+                2025-10-29 20:00 - Liao
+            </div>
+            <div id="log2" class="log-details">
+                <pre>
+健康評估報告
 
-            <!-- Modules -->
-            <p><strong>Modules:</strong></p>
-            {% if data.modules %}
-                <ul>
-                {% for m in data.modules %}
-                    <li>{{ m }}</li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No modules assigned</p>
-            {% endif %}
+病患姓名: Liao
+身分證號: A123456789
+評估日期: 2025-10-29
 
-            <!-- Latest Metrics -->
-            <p><strong>Latest Metrics:</strong> {{ data.metrics }}</p>
-            <p><strong>Last Log:</strong> {{ data.last_log }}</p>
+一、基本資料
+年齡：32歲
+性別：男
+身高：175 cm
+體重：68 kg
+BMI：22.2（正常）
 
-            <!-- Logs (可編輯) -->
-            <p><strong>Logs:</strong></p>
-            {% if data.logs %}
-                <ul>
-                {% for log in data.logs %}
-                    <li>
-                        {{ log }}
-                        <details style="display:inline-block; margin-left:10px;">
-                            <summary class="btn small">Edit</summary>
-                            <form action="/edit_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:8px;">
-                                <input type="text" name="new_text" value="{{ log }}" required>
-                                <button type="submit" class="btn small">Save</button>
-                            </form>
-                        </details>
-                        <form action="/delete_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:6px;">
-                            <button type="submit" class="btn small" onclick="return confirm('Delete this log?')">Delete</button>
-                        </form>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No logs recorded</p>
-            {% endif %}
+二、生理監測摘要
+血壓：122 / 78 mmHg（正常）
+心率：78 bpm（正常）
+血氧（SpO2）：96%（正常）
+體溫：36.7°C（正常）
 
-            <!-- Add Log -->
-            <details>
-                <summary class="btn">➕ Add Log</summary>
-                <form action="/add_log/{{ patient }}" method="post" class="form">
-                    <label>Log text</label>
-                    <input type="text" name="log_text" required>
-                    <button type="submit" class="btn">Submit</button>
-                </form>
-            </details>
+三、問診摘要
+患者表示今日運動量較多，稍感疲倦，無其他不適。
 
-            <!-- History -->
-            <p><strong>History:</strong></p>
-            {% if data.history %}
-                <ul>
-                {% for h in data.history %}
-                    <li>{{ h.timestamp }} - {{ h.summary }}</li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No history</p>
-            {% endif %}
+四、AI 初步建議
+1. 注意休息與水分補充。
+2. 持續使用 MIoT 系統監測生理數據。
+
+五、下階段任務清單調整
+                </pre>
+                <label for="doctor-note2"><strong>醫生評語：</strong></label>
+                <textarea id="doctor-note2" rows="3" style="width:100%; margin-top:5px;"></textarea>
+                <button onclick="saveNote('doctor-note2')" style="margin-top:5px; padding:6px 10px; background-color:#3498db; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+                    儲存評語
+                </button>
+            </div>
         </div>
-    {% endfor %}
-{% endif %}
+
+    </div>
+</div>
+
+<style>
+.log-card {
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.log-header {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+.log-details {
+    display: none;
+    padding: 12px;
+    background-color: #fdfdfd;
+    border-top: 1px solid #ccc;
+    line-height:1.5;
+}
+
+textarea {
+    resize: vertical;
+}
+</style>
+
+<script>
+function toggleLog(logId) {
+    var log = document.getElementById(logId);
+    log.style.display = (log.style.display === "block") ? "none" : "block";
+}
+
+function saveNote(noteId) {
+    var noteContent = document.getElementById(noteId).value;
+    alert("評語已儲存:\n" + noteContent);
+    // TODO: 可用 AJAX/Fetch 將評語送回後端資料庫
+}
+</script>
+
 {% endblock %}

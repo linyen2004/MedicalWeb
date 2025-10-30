@@ -1,75 +1,107 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Emergency Event & Progress Tracking</h2>
+<h2 style="text-align:center; margin-bottom:20px;">緊急模式 - 急救任務列表</h2>
 
-{% if events %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Patient</th>
-            <th>Time</th>
-            <th>Event</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {# 真實事件來自後端 events #}
-        {% for e in events %}
-        <tr>
-            <td>{{ e.patient }}</td>
-            <td>{{ e.time }}</td>
-            <td>{{ e.event }}</td>
-            {# 根據 status 判斷顏色 #}
-            <td style="color: {% if e.status == '處理中' %}red{% elif e.status == '已解決' %}orange{% else %}black{% endif %};">
-                {{ e.status }}
-            </td>
-        </tr>
-        {% endfor %}
+<div id="emergency-tasks" style="max-width:800px; margin:0 auto;">
+    <!-- 任務 1：已解決 -->
+    <div class="task">
+        <div class="task-header resolved" onclick="toggleTask('task1')">
+            2025-10-29 09:15 - Liao 血壓異常 (已解決)
+        </div>
+        <div id="task1" class="task-details">
+            <strong>病患姓名:</strong> Liao<br>
+            <strong>事件時間:</strong> 2025-10-29 09:15<br>
+            <strong>事件描述:</strong> 血壓升高至 180 / 120 mmHg，心率 110 bpm<br>
+            <strong>處置方式:</strong>
+            <ul>
+                <li>立即通知醫護人員</li>
+                <li>給予靜脈降壓藥物</li>
+                <li>持續監測血壓與心率</li>
+            </ul>
+            <strong>結果:</strong> 已穩定，任務完成
+        </div>
+    </div>
 
-        {# 以下是假資料硬編入前端 #}
-        <tr>
-            <td>Liao</td>
-            <td>2025-10-28 15:00</td>
-            <td>Simulated heart rate spike</td>
-            <td style="color:red">處理中</td>
-        </tr>
-        <tr>
-            <td>Liao</td>
-            <td>2025-10-28 13:00</td>
-            <td>Simulated arrhythmia resolved</td>
-            <td style="color:orange">已解決</td>
-        </tr>
+    <!-- 任務 2：未解決 -->
+    <div class="task">
+        <div class="task-header new" onclick="toggleTask('task2')">
+            2025-10-29 14:20 - Liao 低血氧 (未解決)
+        </div>
+        <div id="task2" class="task-details">
+            <strong>病患姓名:</strong> Liao<br>
+            <strong>事件時間:</strong> 2025-10-29 14:20<br>
+            <strong>事件描述:</strong> 血氧下降至 85%，心率 95 bpm<br>
+            <strong>處置方式:</strong>
+            <ul>
+                <li>立即提供氧氣吸入</li>
+                <li>通知醫護人員到場</li>
+                <li>保持患者平躺並監測生命徵象</li>
+            </ul>
+            <strong>結果:</strong> 尚未穩定，待處理
+        </div>
+    </div>
 
-    </tbody>
-</table>
-{% else %}
-<p>No emergency events reported yet.</p>
+    <!-- 任務 3：處理中 -->
+    <div class="task">
+        <div class="task-header processing" onclick="toggleTask('task3')">
+            2025-10-29 12:05 - Liao 心率偏高 (處理中)
+        </div>
+        <div id="task3" class="task-details">
+            <strong>病患姓名:</strong> Liao<br>
+            <strong>事件時間:</strong> 2025-10-29 12:05<br>
+            <strong>事件描述:</strong> 心率 120 bpm<br>
+            <strong>處置方式:</strong>
+            <ul>
+                <li>通知醫護人員</li>
+                <li>建議患者休息並監測心率</li>
+            </ul>
+            <strong>結果:</strong> 正在監控中
+        </div>
+    </div>
+</div>
 
-{# 可以單獨加入假資料顯示 #}
-<table class="table">
-    <thead>
-        <tr>
-            <th>Patient</th>
-            <th>Time</th>
-            <th>Event</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Liao</td>
-            <td>2025-10-28 15:00</td>
-            <td>Simulated heart rate spike</td>
-            <td style="color:red">處理中</td>
-        </tr>
-        <tr>
-            <td>Liao</td>
-            <td>2025-10-28 13:00</td>
-            <td>Simulated arrhythmia resolved</td>
-            <td style="color:orange">已解決</td>
-        </tr>
-    </tbody>
-</table>
+<style>
+.task {
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
-{% endif %}
+.task-header {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+    transition: background 0.3s;
+}
+
+.task-header.new { background-color: #e74c3c; }       /* 紅色 - 剛發生 */
+.task-header.processing { background-color: #27ae60; } /* 綠色 - 處理中 */
+.task-header.resolved { background-color: #f1c40f; }   /* 黃色 - 完成 */
+
+.task-details {
+    display: none;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    line-height: 1.6;
+}
+
+.task-details ul {
+    margin: 5px 0 10px 20px;
+}
+</style>
+
+<script>
+function toggleTask(taskId) {
+    var task = document.getElementById(taskId);
+    if (task.style.display === "none" || task.style.display === "") {
+        task.style.display = "block";
+    } else {
+        task.style.display = "none";
+    }
+}
+</script>
+
 {% endblock %}
