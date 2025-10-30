@@ -4,33 +4,28 @@
     <meta charset="UTF-8">
     <title>Medical Web</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* 🔹灰色不可點的 Home 樣式 */
+        .disabled-link {
+            pointer-events: none;
+            opacity: 0.6;
+            cursor: default;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <nav>
-        {% if user %}
-            {% if user.role == "manager" %}
-                <!-- Manager: 只保留 Model Editor 與 Logout -->
-                <a href="/model_editor">Model Editor</a>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <!-- 非 Manager -->
-                <a href="/">Home</a>
-                <a href="/history">History</a>
-                <a href="/reports">Reports</a>
-
-                {% if user.role == "patient" %}
-                    <a href="/apply_homecare">申請在宅醫療</a>
-                {% endif %}
-
-                <a href="/logout">Logout</a>
-            {% endif %}
-        {% else %}
-            <!-- 未登入 -->
-            <a href="/">Home</a>
-            <a href="/login">Login</a>
-        {% endif %}
-    </nav>
-
+  {% if user %}
+    <a href="/">Home</a>
+    <a href="/history">History</a>
+    <a href="/reports">Reports</a> <!-- 新增 -->
+    <a href="/apply_homecare">Homecare</a>
+    <a href="/logout">Logout</a>
+  {% else %}
+    <a href="#" style="pointer-events: none; color: #ccc;">Home</a>
+  {% endif %}
+</nav>
     <div class="container">
         {% block content %}{% endblock %}
     </div>

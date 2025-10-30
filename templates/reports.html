@@ -1,123 +1,145 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Reports Center</h2>
+<h2>Reports</h2>
 
 {% if is_doctor %}
-    <p style="color:#555;">目前為醫師模式，顯示所有病患的監測資料與歷史報告。</p>
-
-    <div class="cards">
-        {% for patient, data in latest_data.items() %}
+    <h3>All Patients</h3>
+    {% for patient, data in reports.items() %}
         <div class="card">
-            <h3>{{ patient }}</h3>
+            <h4>{{ patient }}</h4>
 
-            {% set patient_metrics = data.get('metrics', {}) %}
-            {% if patient_metrics %}
-            <ul>
-                {% for k, v in patient_metrics.items() %}
-                <li>{{ k | capitalize }}: {{ v }}</li>
+            <!-- Modules -->
+            <p><strong>Modules:</strong></p>
+            {% if data.modules %}
+                <ul>
+                {% for m in data.modules %}
+                    <li>{{ m }}</li>
                 {% endfor %}
-            </ul>
+                </ul>
             {% else %}
-            <p>No monitoring data yet.</p>
+                <p>No modules assigned</p>
             {% endif %}
 
-            <p>Last Log: {{ data.get('last_log', 'No logs') }}</p>
+            <!-- Latest Metrics -->
+            <p><strong>Latest Metrics:</strong> {{ data.metrics }}</p>
+            <p><strong>Last Log:</strong> {{ data.last_log }}</p>
 
-            <!-- 新增 Liao 詳細報告 -->
-            {% if patient == "Liao" %}
-            <details class="card detailed-report">
-                <summary class="btn">📋 查看詳細監測報告</summary>
-                <pre style="white-space: pre-wrap; background-color:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ccc; margin-top:10px;">
-健康評估報告
+            <!-- Logs (可編輯) -->
+            <p><strong>Logs:</strong></p>
+            {% if data.logs %}
+                <ul>
+                {% for log in data.logs %}
+                    <li>
+                        {{ log }}
+                        <details style="display:inline-block; margin-left:10px;">
+                            <summary class="btn small">Edit</summary>
+                            <form action="/edit_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:8px;">
+                                <input type="text" name="new_text" value="{{ log }}" required>
+                                <button type="submit" class="btn small">Save</button>
+                            </form>
+                        </details>
+                        <form action="/delete_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:6px;">
+                            <button type="submit" class="btn small" onclick="return confirm('Delete this log?')">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No logs recorded</p>
+            {% endif %}
 
-病患姓名: Liao
-身分證號: A123456789
-評估日期: 2025-10-29
-
-一、基本資料
-年齡：32歲
-性別：男
-身高：175 cm
-體重：68 kg
-BMI：22.2（正常）
-
-二、生理監測摘要
-血壓：118 / 76 mmHg（正常）
-心率：76 bpm（正常）
-血氧（SpO2）：97%（正常）
-體溫：36.6°C（正常）
-
-三、問診摘要
-患者表示近期偶有輕微頭暈，無胸悶或呼吸困難。
-日常飲食正常，運動頻率每週約三次。
-睡眠品質良好。
-
-四、AI 初步建議
-1. 維持現有運動頻率與均衡飲食。
-2. 若頭暈持續，建議於一週內前往醫院進行血壓與血糖追蹤。
-3. 定期使用 MIoT 系統進行生理監測。
-                </pre>
+            <!-- Add Log -->
+            <details>
+                <summary class="btn">➕ Add Log</summary>
+                <form action="/add_log/{{ patient }}" method="post" class="form">
+                    <label>Log text</label>
+                    <input type="text" name="log_text" required>
+                    <button type="submit" class="btn">Submit</button>
+                </form>
             </details>
-            {% endif %}
 
+            <!-- History -->
+            <p><strong>History:</strong></p>
+            {% if data.history %}
+                <ul>
+                {% for h in data.history %}
+                    <li>{{ h.timestamp }} - {{ h.summary }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No history</p>
+            {% endif %}
         </div>
-        {% endfor %}
-    </div>
+    {% endfor %}
 
 {% else %}
-    <!-- 患者模式 -->
-    <div class="card">
-        <h3>{{ username }}</h3>
+    <h3>Your Report</h3>
+    {% for patient, data in reports.items() %}
+        <div class="card">
+            <h4>{{ patient }}</h4>
 
-        {% set user_metrics = latest_data.get('metrics', {}) %}
-        {% if user_metrics %}
-        <ul>
-            {% for k, v in user_metrics.items() %}
-            <li>{{ k | capitalize }}: {{ v }}</li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p>No monitoring data yet.</p>
-        {% endif %}
+            <!-- Modules -->
+            <p><strong>Modules:</strong></p>
+            {% if data.modules %}
+                <ul>
+                {% for m in data.modules %}
+                    <li>{{ m }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No modules assigned</p>
+            {% endif %}
 
-        <p>Last Log: {{ latest_data.get('last_log', 'No logs') }}</p>
+            <!-- Latest Metrics -->
+            <p><strong>Latest Metrics:</strong> {{ data.metrics }}</p>
+            <p><strong>Last Log:</strong> {{ data.last_log }}</p>
 
-        {% if username == "Liao" %}
-        <details class="card detailed-report">
-            <summary class="btn">📋 查看詳細監測報告</summary>
-            <pre style="white-space: pre-wrap; background-color:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #ccc; margin-top:10px;">
-健康評估報告
+            <!-- Logs (可編輯) -->
+            <p><strong>Logs:</strong></p>
+            {% if data.logs %}
+                <ul>
+                {% for log in data.logs %}
+                    <li>
+                        {{ log }}
+                        <details style="display:inline-block; margin-left:10px;">
+                            <summary class="btn small">Edit</summary>
+                            <form action="/edit_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:8px;">
+                                <input type="text" name="new_text" value="{{ log }}" required>
+                                <button type="submit" class="btn small">Save</button>
+                            </form>
+                        </details>
+                        <form action="/delete_log/{{ patient }}/{{ loop.index0 }}" method="post" style="display:inline-block; margin-left:6px;">
+                            <button type="submit" class="btn small" onclick="return confirm('Delete this log?')">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No logs recorded</p>
+            {% endif %}
 
-病患姓名: Liao
-身分證號: A123456789
-評估日期: 2025-10-29
+            <!-- Add Log -->
+            <details>
+                <summary class="btn">➕ Add Log</summary>
+                <form action="/add_log/{{ patient }}" method="post" class="form">
+                    <label>Log text</label>
+                    <input type="text" name="log_text" required>
+                    <button type="submit" class="btn">Submit</button>
+                </form>
+            </details>
 
-一、基本資料
-年齡：32歲
-性別：男
-身高：175 cm
-體重：68 kg
-BMI：22.2（正常）
-
-二、生理監測摘要
-血壓：118 / 76 mmHg（正常）
-心率：76 bpm（正常）
-血氧（SpO2）：97%（正常）
-體溫：36.6°C（正常）
-
-三、問診摘要
-患者表示近期偶有輕微頭暈，無胸悶或呼吸困難。
-日常飲食正常，運動頻率每週約三次。
-睡眠品質良好。
-
-四、AI 初步建議
-1. 維持現有運動頻率與均衡飲食。
-2. 若頭暈持續，建議於一週內前往醫院進行血壓與血糖追蹤。
-3. 定期使用 MIoT 系統進行生理監測。
-            </pre>
-        </details>
-        {% endif %}
-    </div>
+            <!-- History -->
+            <p><strong>History:</strong></p>
+            {% if data.history %}
+                <ul>
+                {% for h in data.history %}
+                    <li>{{ h.timestamp }} - {{ h.summary }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No history</p>
+            {% endif %}
+        </div>
+    {% endfor %}
 {% endif %}
 {% endblock %}

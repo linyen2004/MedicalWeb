@@ -113,17 +113,16 @@ init_db_and_seed()
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     user = request.session.get("user")
+    # 🚀 未登入者直接導向登入畫面
     if not user:
-        return templates.TemplateResponse("home.html", {"request": request, "user": None})
+        return templates.TemplateResponse("login.html", {"request": request, "user": None})
 
     if user["role"] == "doctor":
-        # pending homecare
         pending = []
         reqs = db.query(HomecareRequest).filter(HomecareRequest.status == "pending").all()
         for r in reqs:
             pending.append({"name": r.patient.name, "requested_at": r.requested_at.strftime("%Y-%m-%d %H:%M:%S")})
 
-        # latest data mapping for doctor patients (all patients)
         latest_data = {}
         patients = db.query(Patient).all()
         for p in patients:
@@ -144,12 +143,13 @@ async def home(request: Request, db: Session = Depends(get_db)):
         logs = db.query(Log).filter(Log.patient_id == patient.id).order_by(Log.timestamp).all() if patient else []
         metrics = parse_latest_metrics_from_logs(logs)
         latest_data = {"metrics": metrics, "last_log": logs[-1].content if logs else None}
-        # fetch patient's homecare request if any
+
         req = None
         if patient:
             r = db.query(HomecareRequest).filter(HomecareRequest.patient_id == patient.id).order_by(HomecareRequest.requested_at.desc()).first()
             if r:
                 req = {"requested_at": r.requested_at.strftime("%Y-%m-%d %H:%M:%S"), "status": r.status, "reason": r.reason}
+
         return templates.TemplateResponse("home.html", {
             "request": request,
             "user": user,
@@ -159,6 +159,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
 
     else:
         return templates.TemplateResponse("home.html", {"request": request, "user": user})
+
 
 # Login / Logout (unchanged)
 @app.get("/login", response_class=HTMLResponse)
@@ -201,36 +202,7 @@ async def history(request: Request, db: Session = Depends(get_db)):
         # supply modules from in-memory mapping to preserve templates
         return templates.TemplateResponse("history.html", {"request": request, "patients": patients, "history": history_map, "modules": patient_modules, "user": user})
 
-# Modules page
-@app.get("/modules", response_class=HTMLResponse)
-async def modules_page(request: Request, db: Session = Depends(get_db)):
-    user = request.session.get("user")
-    if not user:
-        return templates.TemplateResponse("restricted.html", {"request": request})
-    if user["role"] == "patient":
-        mods = patient_modules.get(user["name"], [])
-        return templates.TemplateResponse("modules.html", {"request": request, "modules": mods, "user": user})
-    elif user["role"] == "doctor":
-        patients = [p.name for p in db.query(Patient).all()]
-        return templates.TemplateResponse("modules.html", {"request": request, "patients": patients, "modules": patient_modules, "user": user})
 
-# Logs page
-@app.get("/logs", response_class=HTMLResponse)
-async def logs_page(request: Request, db: Session = Depends(get_db)):
-    user = request.session.get("user")
-    if not user:
-        return templates.TemplateResponse("restricted.html", {"request": request})
-    if user["role"] == "patient":
-        patient = db.query(Patient).filter_by(name=user["name"]).first()
-        logs = [l.content for l in db.query(Log).filter(Log.patient_id == patient.id).order_by(Log.timestamp).all()] if patient else []
-        return templates.TemplateResponse("logs.html", {"request": request, "logs": logs, "user": user})
-    elif user["role"] == "doctor":
-        patients = [p.name for p in db.query(Patient).all()]
-        # logs mapping name -> list
-        logs_map = {}
-        for p in db.query(Patient).all():
-            logs_map[p.name] = [l.content for l in db.query(Log).filter(Log.patient_id == p.id).order_by(Log.timestamp).all()]
-        return templates.TemplateResponse("logs.html", {"request": request, "patients": patients, "logs": logs_map, "user": user})
 
 # Add history (doctor)
 @app.get("/add_history/{patient_name}", response_class=HTMLResponse)
@@ -284,6 +256,38 @@ async def delete_history(request: Request, patient_name: str, index: int, db: Se
         db.delete(rows[index])
         db.commit()
     return RedirectResponse("/history", status_code=302)
+
+# Modules page
+@app.get("/modules", response_class=HTMLResponse)
+async def modules_page(request: Request, db: Session = Depends(get_db)):
+    user = request.session.get("user")
+    if not user:
+        return templates.TemplateResponse("restricted.html", {"request": request})
+    if user["role"] == "patient":
+        mods = patient_modules.get(user["name"], [])
+        return templates.TemplateResponse("modules.html", {"request": request, "modules": mods, "user": user})
+    elif user["role"] == "doctor":
+        patients = [p.name for p in db.query(Patient).all()]
+        return templates.TemplateResponse("modules.html", {"request": request, "patients": patients, "modules": patient_modules, "user": user})
+
+# Logs page
+@app.get("/logs", response_class=HTMLResponse)
+async def logs_page(request: Request, db: Session = Depends(get_db)):
+    user = request.session.get("user")
+    if not user:
+        return templates.TemplateResponse("restricted.html", {"request": request})
+    if user["role"] == "patient":
+        patient = db.query(Patient).filter_by(name=user["name"]).first()
+        logs = [l.content for l in db.query(Log).filter(Log.patient_id == patient.id).order_by(Log.timestamp).all()] if patient else []
+        return templates.TemplateResponse("logs.html", {"request": request, "logs": logs, "user": user})
+    elif user["role"] == "doctor":
+        patients = [p.name for p in db.query(Patient).all()]
+        # logs mapping name -> list
+        logs_map = {}
+        for p in db.query(Patient).all():
+            logs_map[p.name] = [l.content for l in db.query(Log).filter(Log.patient_id == p.id).order_by(Log.timestamp).all()]
+        return templates.TemplateResponse("logs.html", {"request": request, "patients": patients, "logs": logs_map, "user": user})
+
 
 # Add / Edit / Delete logs (doctor)
 @app.post("/add_log/{patient_name}", response_class=HTMLResponse)
@@ -407,67 +411,61 @@ async def reports_page(request: Request, db: Session = Depends(get_db)):
     username = user.get("name")
     is_doctor = role == "doctor"
 
-    if is_doctor:
-        report_data = {}
-        latest_data = {}
-        for p in db.query(Patient).all():
-            report_data[p.name] = {
-                "modules": patient_modules.get(p.name, []),
-                "logs": [l.content for l in db.query(Log).filter(Log.patient_id == p.id).order_by(Log.timestamp).all()],
-                "history": [h.content for h in db.query(History).filter(History.patient_id == p.id).order_by(History.created_at).all()]
-            }
-            logs = db.query(Log).filter(Log.patient_id == p.id).order_by(Log.timestamp).all()
-            latest_data[p.name] = {"metrics": parse_latest_metrics_from_logs(logs), "last_log": logs[-1].content if logs else None}
+    reports = {}
 
-        # construct 'reports' mapping for template compatibility (timestamp/summary)
-        reports_map = {}
+    if is_doctor:
+        # 醫師模式：整合所有病患資料
         for p in db.query(Patient).all():
-            rows = db.query(History).filter(History.patient_id == p.id).order_by(History.created_at).all()
-            reports_map[p.name] = [{"timestamp": r.created_at.strftime("%Y-%m-%d %H:%M:%S"), "summary": r.content} for r in rows]
+            logs = db.query(Log).filter(Log.patient_id == p.id).order_by(Log.timestamp).all()
+            history = db.query(History).filter(History.patient_id == p.id).order_by(History.created_at).all()
+
+            reports[p.name] = {
+                "metrics": parse_latest_metrics_from_logs(logs),
+                "last_log": logs[-1].content if logs else None,
+                "modules": patient_modules.get(p.name, []),
+                "logs": [l.content for l in logs],
+                "history": [{"timestamp": h.created_at.strftime("%Y-%m-%d %H:%M:%S"), "summary": h.content} for h in history]
+            }
 
         return templates.TemplateResponse("reports.html", {
             "request": request,
             "is_doctor": True,
-            "report_data": report_data,
-            "latest_data": latest_data,
+            "reports": reports,
             "username": username,
-            "user": user,
-            "reports": reports_map
+            "user": user
         })
 
     else:
+        # 病患模式：僅顯示自己的資料
         patient = db.query(Patient).filter_by(name=username).first()
-        logs = db.query(Log).filter(Log.patient_id == patient.id).order_by(Log.timestamp).all() if patient else []
-        metrics = parse_latest_metrics_from_logs(logs)
-        latest_data = {"metrics": metrics, "last_log": logs[-1].content if logs else None}
-        rows = db.query(History).filter(History.patient_id == patient.id).order_by(History.created_at).all() if patient else []
-        reports_map = {username: [{"timestamp": r.created_at.strftime("%Y-%m-%d %H:%M:%S"), "summary": r.content} for r in rows]}
-        report_data = {
-            username: {
-                "modules": patient_modules.get(username, []),
-                "logs": [l.content for l in logs],
-                "history": [h.content for h in rows]
-            }
+        if not patient:
+            return templates.TemplateResponse("reports.html", {
+                "request": request,
+                "is_doctor": False,
+                "reports": {},
+                "username": username,
+                "user": user
+            })
+
+        logs = db.query(Log).filter(Log.patient_id == patient.id).order_by(Log.timestamp).all()
+        history = db.query(History).filter(History.patient_id == patient.id).order_by(History.created_at).all()
+
+        reports[username] = {
+            "metrics": parse_latest_metrics_from_logs(logs),
+            "last_log": logs[-1].content if logs else None,
+            "modules": patient_modules.get(username, []),
+            "logs": [l.content for l in logs],
+            "history": [{"timestamp": h.created_at.strftime("%Y-%m-%d %H:%M:%S"), "summary": h.content} for h in history]
         }
+
         return templates.TemplateResponse("reports.html", {
             "request": request,
             "is_doctor": False,
-            "report_data": report_data,
-            "latest_data": latest_data,
+            "reports": reports,
             "username": username,
-            "user": user,
-            "reports": reports_map
+            "user": user
         })
 
-# Model editor (manager)
-@app.get("/model_editor", response_class=HTMLResponse)
-async def model_editor(request: Request):
-    user = request.session.get("user")
-    if not user:
-        return templates.TemplateResponse("restricted.html", {"request": request})
-    if user["role"] != "manager":
-        return templates.TemplateResponse("restricted.html", {"request": request})
-    return templates.TemplateResponse("model_editor.html", {"request": request})
 
 # ---- Run ----
 if __name__ == "__main__":
