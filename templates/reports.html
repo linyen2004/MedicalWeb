@@ -13,13 +13,14 @@
     <div id="logs">
         <h3>監測數據紀錄</h3>
 
-        <!-- 單筆監測數據卡片 -->
+        <!-- 第一筆監測數據卡片 -->
         <div class="log-card">
             <div class="log-header" onclick="toggleLog('log1')">
                 2025-10-29 08:00 - Liao
+                <button onclick="showRaw('raw1'); event.stopPropagation();" style="float:right;">原始報告</button>
             </div>
             <div id="log1" class="log-details">
-                <pre>
+<pre>
 健康評估報告
 
 病患姓名: Liao
@@ -49,22 +50,51 @@ BMI：22.2（正常）
 2. 若頭暈持續，建議於一週內前往醫院進行血壓與血糖追蹤。
 3. 定期使用 MIoT 系統進行生理監測。
 
-五、下階段任務清單調整
-                </pre>
-                <label for="doctor-note1"><strong>醫生評語：</strong></label>
-                <textarea id="doctor-note1" rows="3" style="width:100%; margin-top:5px;"></textarea>
-                <button onclick="saveNote('doctor-note1')" style="margin-top:5px; padding:6px 10px; background-color:#3498db; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-                    儲存評語
-                </button>
+五、下階段任務清單
+- 每日早晨 08:00：血氧與體溫監測（進行中）
+- 每日晚上 20:00：血氧與血壓監測（待執行）
+
+六、醫師評語
+維持現有生活習慣，注意頭暈狀況。
+</pre>
+                <pre id="raw1" class="raw-report" style="display:none; background-color:#f6f6f6; padding:10px; border:1px solid #ccc; overflow:auto;">
+{
+  "病患姓名": "Liao",
+  "身分證號": "A123456789",
+  "年齡": 32,
+  "性別": "男",
+  "生理監測": {
+    "血壓": "118 / 76 mmHg（正常）",
+    "心率": "76 bpm（正常）",
+    "血氧": "97%（正常）",
+    "體溫": "36.6°C（正常）",
+    "監測狀態": "正常",
+    "備註": "無異常"
+  },
+  "問診摘要": "近期偶有輕微頭暈，日常飲食正常，運動每週三次，睡眠良好。",
+  "AI建議": [
+    "維持現有運動與飲食習慣",
+    "若頭暈持續，建議一週內血壓與血糖追蹤",
+    "定期使用 MIoT 系統進行生理監測"
+  ],
+  "下階段任務": [
+    "每日早晨 08:00：血氧與體溫監測（進行中）",
+    "每日晚上 20:00：血氧與血壓監測（待執行）"
+  ],
+  "醫師評語": "維持現有生活習慣，注意頭暈狀況。"
+}
+</pre>
             </div>
         </div>
 
+        <!-- 第二筆監測數據卡片 -->
         <div class="log-card">
             <div class="log-header" onclick="toggleLog('log2')">
                 2025-10-29 20:00 - Liao
+                <button onclick="showRaw('raw2'); event.stopPropagation();" style="float:right;">原始報告</button>
             </div>
             <div id="log2" class="log-details">
-                <pre>
+<pre>
 健康評估報告
 
 病患姓名: Liao
@@ -91,36 +121,119 @@ BMI：22.2（正常）
 1. 注意休息與水分補充。
 2. 持續使用 MIoT 系統監測生理數據。
 
-五、下階段任務清單調整
-                </pre>
-                <label for="doctor-note2"><strong>醫生評語：</strong></label>
-                <textarea id="doctor-note2" rows="3" style="width:100%; margin-top:5px;"></textarea>
-                <button onclick="saveNote('doctor-note2')" style="margin-top:5px; padding:6px 10px; background-color:#3498db; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-                    儲存評語
-                </button>
+五、下階段任務清單
+- 每日早晨 08:00：血氧與體溫監測（進行中）
+- 每日晚上 20:00：血氧與血壓監測（待執行）
+
+<label for="doctor-note2"><strong>醫生評語：</strong></label>
+<textarea id="doctor-note2" rows="3" style="width:100%; margin-top:5px;"></textarea>
+<button onclick="saveNote('doctor-note2')" class="save-btn">儲存評語</button>
+</pre>
+                <pre id="raw2" class="raw-report" style="display:none; background-color:#f6f6f6; padding:10px; border:1px solid #ccc; overflow:auto;">
+{
+  "病患姓名": "Liao",
+  "身分證號": "A123456789",
+  "年齡": 32,
+  "性別": "男",
+  "生理監測": {
+    "血壓": "122 / 78 mmHg（正常）",
+    "心率": "78 bpm（正常）",
+    "血氧": "96%（正常）",
+    "體溫": "36.7°C（正常）",
+    "監測狀態": "正常",
+    "備註": "輕微疲倦"
+  },
+  "問診摘要": "今日運動量較多，稍感疲倦，無其他不適。",
+  "AI建議": [
+    "注意休息與水分補充",
+    "持續使用 MIoT 系統監測生理數據"
+  ],
+  "下階段任務": [
+    "每日早晨 08:00：血氧與體溫監測（進行中）",
+    "每日晚上 20:00：血氧與血壓監測（待執行）"
+  ]
+}
+</pre>
             </div>
         </div>
 
     </div>
+
+    <!-- 分隔線 -->
+    <hr style="margin:30px 0; border-top:2px dashed #ccc;">
+
+    <!-- 急救任務報告區 -->
+    <div id="emergency-reports">
+        <h3>急救任務報告</h3>
+
+        <div class="emergency-card">
+            <div class="emergency-header" onclick="toggleEmergency('er1')">
+                ER_20251029_P20251015 — Liao 急救處置事件報告
+            </div>
+            <div id="er1" class="emergency-details">
+<pre>
+急救任務報告
+
+病患姓名: Liao
+身分證號: A123456789
+事件日期: 2025-10-29
+事件編號: ER_20251029_P20251015
+
+一、事件概述
+MIoT 系統於 2025-10-29 07:42 偵測到病患心率異常偏低 (42 bpm)，並於 07:43 自動發出急救通報。
+系統啟動 Emergency AI 模組，派遣醫護代理人前往現場。
+
+二、現場狀況
+抵達時病患意識微弱、膚色蒼白、呼吸急促。
+血壓：85 / 60 mmHg，心率：44 bpm，SpO2：88%。
+
+三、處置流程
+1. 即時氧氣供應，監測生命徵象。
+2. 進行靜脈輸液以穩定血壓。
+3. 通報後台急診醫師同步監控數據。
+4. 救護車於 07:53 抵達現場，轉送醫院急診室。
+
+四、醫療結論
+經初步檢查，疑似藥物副作用造成短暫性低血壓。
+建議後續進行心電圖與藥物代謝檢測。
+
+五、後續追蹤建議
+1. 暫停使用疑似相關藥物。
+2. 於三日內進行回診追蹤。
+3. 強化夜間監測頻率與警報靈敏度。
+</pre>
+                <label for="emergency-note1"><strong>醫師後續意見：</strong></label>
+                <textarea id="emergency-note1" rows="3" style="width:100%; margin-top:5px;"></textarea>
+                <button onclick="saveNote('emergency-note1')" class="save-btn">儲存意見</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <style>
-.log-card {
+/* 監測紀錄樣式 */
+.log-card, .emergency-card {
     border-radius: 6px;
     margin-bottom: 12px;
     overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-.log-header {
+.log-header, .emergency-header {
     padding: 10px 12px;
     cursor: pointer;
     font-weight: bold;
     background-color: #2ecc71;
     color: #fff;
+    transition: background 0.3s;
 }
 
-.log-details {
+.log-header:hover, .emergency-header:hover {
+    background-color: #27ae60;
+}
+
+.log-details, .emergency-details {
     display: none;
     padding: 12px;
     background-color: #fdfdfd;
@@ -128,22 +241,62 @@ BMI：22.2（正常）
     line-height:1.5;
 }
 
+/* 按鈕樣式 */
+.save-btn {
+    margin-top: 5px;
+    padding: 6px 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.save-btn:hover {
+    background-color: #2980b9;
+}
+
 textarea {
     resize: vertical;
+}
+
+.raw-report {
+    font-family: monospace;
+    white-space: pre-wrap;
 }
 </style>
 
 <script>
 function toggleLog(logId) {
     var log = document.getElementById(logId);
-    log.style.display = (log.style.display === "block") ? "none" : "block";
+    if (log.style.display === "none") {
+        log.style.display = "block";
+    } else {
+        log.style.display = "none";
+    }
+}
+
+function toggleEmergency(erId) {
+    var log = document.getElementById(erId);
+    if (log.style.display === "none") {
+        log.style.display = "block";
+    } else {
+        log.style.display = "none";
+    }
+}
+
+function showRaw(rawId) {
+    var raw = document.getElementById(rawId);
+    if (raw.style.display === "none") {
+        raw.style.display = "block";
+    } else {
+        raw.style.display = "none";
+    }
 }
 
 function saveNote(noteId) {
-    var noteContent = document.getElementById(noteId).value;
-    alert("評語已儲存:\n" + noteContent);
-    // TODO: 可用 AJAX/Fetch 將評語送回後端資料庫
+    var note = document.getElementById(noteId).value;
+    alert("已儲存評語:\n" + note);
 }
 </script>
-
 {% endblock %}

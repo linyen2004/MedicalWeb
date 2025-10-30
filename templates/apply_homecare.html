@@ -1,19 +1,54 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Apply for In-home Medical Care</h2>
+<h2 style="text-align:center; margin-bottom:20px;">居家醫療申請</h2>
 
 {% if request_info %}
-    <div class="card">
-        <h3>Your Current Application</h3>
-        <p>Requested at: {{ request_info.requested_at }}</p>
-        <p>Status: {{ request_info.status }}</p>
-        <p>Reason: {{ request_info.reason }}</p>
+<div class="card">
+    <div class="card-header">
+        您的最新申請紀錄
     </div>
+    <div class="card-body">
+        <p><strong>申請時間：</strong>{{ request_info.requested_at }}</p>
+        <p><strong>狀態：</strong>{{ request_info.status }}</p>
+        <p><strong>申請原因：</strong>{{ request_info.reason }}</p>
+    </div>
+</div>
 {% endif %}
 
-<form method="post" class="form">
-    <label>Reason for Request:</label>
-    <textarea name="reason" required></textarea>
-    <button type="submit" class="btn">Submit Request</button>
+<form method="post" class="form" style="margin-top:25px;">
+    <label><strong>申請原因：</strong></label>
+    <textarea name="reason" required placeholder="請輸入居家醫療申請原因..." style="width:100%; min-height:100px; margin-top:8px;"></textarea>
+    <button type="submit" class="btn" style="margin-top:10px; padding:8px 16px;">送出申請</button>
 </form>
+
+<style>
+.card {
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 15px auto;
+    padding: 12px;
+    background-color: #f8f9fa;
+    max-width: 600px;
+}
+.card-header {
+    font-weight: bold;
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    border-radius: 6px 6px 0 0;
+}
+.card-body {
+    padding: 10px;
+}
+.btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn:hover {
+    background-color: #2980b9;
+}
+</style>
 {% endblock %}

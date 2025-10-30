@@ -3,6 +3,7 @@
 <h2 style="text-align:center; margin-bottom:20px;">緊急模式 - 急救任務列表</h2>
 
 <div id="emergency-tasks" style="max-width:800px; margin:0 auto;">
+
     <!-- 任務 1：已解決 -->
     <div class="task">
         <div class="task-header resolved" onclick="toggleTask('task1')">
@@ -13,7 +14,7 @@
             <strong>事件時間:</strong> 2025-10-29 09:15<br>
             <strong>事件描述:</strong> 血壓升高至 180 / 120 mmHg，心率 110 bpm<br>
             <strong>處置方式:</strong>
-            <ul>
+            <ul class="emergency-action">
                 <li>立即通知醫護人員</li>
                 <li>給予靜脈降壓藥物</li>
                 <li>持續監測血壓與心率</li>
@@ -32,7 +33,7 @@
             <strong>事件時間:</strong> 2025-10-29 14:20<br>
             <strong>事件描述:</strong> 血氧下降至 85%，心率 95 bpm<br>
             <strong>處置方式:</strong>
-            <ul>
+            <ul class="emergency-action">
                 <li>立即提供氧氣吸入</li>
                 <li>通知醫護人員到場</li>
                 <li>保持患者平躺並監測生命徵象</li>
@@ -51,14 +52,27 @@
             <strong>事件時間:</strong> 2025-10-29 12:05<br>
             <strong>事件描述:</strong> 心率 120 bpm<br>
             <strong>處置方式:</strong>
-            <ul>
+            <ul class="emergency-action">
                 <li>通知醫護人員</li>
                 <li>建議患者休息並監測心率</li>
             </ul>
             <strong>結果:</strong> 正在監控中
         </div>
     </div>
+
 </div>
+
+<style>
+/* 強調處置方式 */
+.emergency-action {
+    background-color: #fff3cd; /* 淡黃色背景 */
+    border-left: 4px solid #ffc107; /* 左側黃邊 */
+    padding: 8px 12px;
+    margin: 5px 0 10px 0;
+    border-radius: 4px;
+    list-style-type: disc;
+}
+</style>
 
 <style>
 .task {
